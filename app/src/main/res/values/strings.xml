@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">jessiestam-pset4_jaar2_desktop</string>
+    <string name="add_hint">Write to-do item here</string>
+    <string name="add_button">ADD</string>
+</resources>
