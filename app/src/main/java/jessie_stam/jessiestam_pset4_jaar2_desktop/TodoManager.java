@@ -6,11 +6,11 @@ package jessie_stam.jessiestam_pset4_jaar2_desktop;
 
 public class TodoManager {
 
-    // define counter for list id
-    //private Integer list_id = 0;
-
     // define counter for item id
     private Integer item_id = 0;
+
+//    // define status
+//    private String current_status = "unfinished";
 
     private static TodoManager ourInstance = null;
 
@@ -37,27 +37,12 @@ public class TodoManager {
         // set id for the new item
         todo_item.setId(item_id);
 
+        // set status for the new item
+        todo_item.setCurrentStatus("unfinished");
+
         // update id for next item
         item_id += 1;
 
         return todo_item;
     }
-
-//    /**
-//     * Iterates over todo_list_list and checks if it's the list to be deleted
-//     */
-//    public void delete_item(String delete_item) {
-//
-//        for (int i = 0; i < todo_list.size(); i++) {
-//
-//            if (todo_list_list.get(i).toString().equals(delete_list)) {
-//
-//                // remove item from list list
-//                todo_list_list.remove(todo_list_list.get(i));
-//
-//            }
-//        }
-//    }
-
-
 }

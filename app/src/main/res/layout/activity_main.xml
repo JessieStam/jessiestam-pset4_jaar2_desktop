@@ -81,7 +81,8 @@
                 android:textSize="15sp"
                 android:layout_weight="0.1"
                 android:layout_gravity="end"
-                android:background="#0e2b23" />
+                android:background="#0e2b23"
+                android:onClick="addToListItem"/>
         </LinearLayout>
 
     </LinearLayout>

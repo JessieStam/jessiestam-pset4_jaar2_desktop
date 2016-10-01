@@ -10,6 +10,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +21,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayAdapter<String> todoAdapter;
     TodoManager todo_manager;
     DBHelper db_helper;
+    ArrayList<HashMap<String, String>> db_list;
+    String clicked_item;
+    String current_status;
+    String update_todo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,22 +49,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                ArrayList<HashMap<String, String>> db_list = db_helper.read_item();
+                // read SQLite database to get status of clicked item
+                db_list = db_helper.read_item();
 
-                // haal hier de status uit en verander eventueel de kleur
+                // get name from clicked item
+                clicked_item = (String) parent.getItemAtPosition(position);
 
-                // if item is selected, change color to gray
-                if (currentStatus.equals(unfinished)) {
-                    screen_item_list.getChildAt(position).setBackgroundColor(Color.GRAY);
-                    currentStatus = finished;
+                // iterate over hashmaps in database list
+                for (HashMap<String, String> hashmap : db_list) {
+                    // iterate over entries in hashmap
+                    for (Map.Entry<String, String> hashmap_entry : hashmap.entrySet()) {
+                        // if clicked item name is in hashmap, save status of that hashmap
+                        if (hashmap_entry.toString().equals(clicked_item)) {
+                            update_todo = hashmap.get("todo_text");
+                            current_status = hashmap.get("current_status");
+                        }
+                    }
                 }
-                // if item is not selected, change color back to white
-                else if (currentStatus.equals(finished)) {
-                    screen_item_list.getChildAt(position).setBackgroundColor(Color.WHITE);
-                    currentStatus = unfinished;
-                }
 
-                db_helper.update(TodoItem parent.getChildAt(position));
+                TodoItem todo_item = todo_manager.create_item(update_todo);
+                db_helper.update(todo_item);
             }
         });
 
