@@ -28,7 +28,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase dataBase) {
 
         // create the table, add id and to-do items
-        String query = "CREATE TABLE" + TABLE + " (_id" + " INTEGER PRIMARY KEY AUTOINCREMENT" + "todo_text TEXT, current_status TEXT)";
+        String query = "CREATE TABLE " + TABLE + " (_id " + "INTEGER PRIMARY KEY AUTOINCREMENT, " + "todo_text TEXT, current_status TEXT)";
 
         dataBase.execSQL(query);
     }
@@ -63,7 +63,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase dataBase = getReadableDatabase();
 
         // select id and item from the table
-        String query = "SELECT _id " + "todo_text " + "current_status " + "FROM " + TABLE;
+        String query = "SELECT _id, " + "todo_text, " + "current_status " + "FROM " + TABLE;
 
         ArrayList<HashMap<String, String>> todo_list = new ArrayList<>();
         Cursor cursor = dataBase.rawQuery(query, null);
@@ -72,7 +72,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 HashMap<String, String> todo_list_item = new HashMap<>();
-                todo_list_item.put("id", cursor.getString(cursor.getColumnIndex(" id")));
+                todo_list_item.put("_id", cursor.getString(cursor.getColumnIndex("_id")));
                 todo_list_item.put("todo_text", cursor.getString
                         (cursor.getColumnIndex("todo_text")));
                 todo_list_item.put("current_status", cursor.getString
@@ -115,7 +115,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put("current_status", current_status);
 
         // change data in the database for specific id
-        dataBase.update(TABLE, values, " id = ? ", new String[] {String.valueOf(todo_item.getId())});
+        dataBase.update(TABLE, values, "_id = ? ", new String[] {String.valueOf(todo_item.getId())});
         dataBase.close();
     }
 

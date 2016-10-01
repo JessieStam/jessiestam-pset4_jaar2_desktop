@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:layout_weight="1"
-            android:id="@+id/todo_list_id"/>
+            android:id="@+id/todo_list_id" />
 
         <LinearLayout
             android:orientation="horizontal"

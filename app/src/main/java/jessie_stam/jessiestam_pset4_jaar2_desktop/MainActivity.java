@@ -1,7 +1,9 @@
 package jessie_stam.jessiestam_pset4_jaar2_desktop;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,7 +36,11 @@ public class MainActivity extends AppCompatActivity {
         user_input = (EditText) findViewById(R.id.user_todo_input);
         screen_list = new ListView(this);
         screen_list = (ListView) findViewById(R.id.todo_list_id);
-        todoAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, todo_list);
+
+        todo_list = new ArrayList<>();
+
+        todoAdapter = new ArrayAdapter<>
+                (this, R.layout.listview_layout,R.id.listview_text, todo_list);
 
         // nieuwe DBHelper maken
         db_helper = new DBHelper(this);
@@ -55,17 +61,29 @@ public class MainActivity extends AppCompatActivity {
                 // get name from clicked item
                 clicked_item = (String) parent.getItemAtPosition(position);
 
+                Log.d("test", "item is clicked: " + clicked_item);
+
                 // iterate over hashmaps in database list
                 for (HashMap<String, String> hashmap : db_list) {
                     // iterate over entries in hashmap
                     for (Map.Entry<String, String> hashmap_entry : hashmap.entrySet()) {
                         // if clicked item name is in hashmap, save status of that hashmap
-                        if (hashmap_entry.toString().equals(clicked_item)) {
+
+                        Log.d("onclick test", hashmap_entry.toString());
+
+                        if (hashmap_entry.toString().equals("todo_text=" + clicked_item)) {
                             update_todo = hashmap.get("todo_text");
                             current_status = hashmap.get("current_status");
+
+                            Log.d("onclick test 2", "gets in loop 2");
+                            Log.d("status", current_status);
                         }
                     }
                 }
+
+                Log.d("onclick test", "gets out of loop");
+
+                changeItemColor(view, current_status);
 
                 TodoItem todo_item = todo_manager.create_item(update_todo);
                 db_helper.update(todo_item);
@@ -103,19 +121,36 @@ public class MainActivity extends AppCompatActivity {
         // get item for the list
         todo_item = user_input.getText().toString();
 
-        // create new item
-        TodoItem new_item = todo_manager.create_item(todo_item);
+        Log.d("test", todo_item);
 
         // add user input to ListView
         todo_list.add(todo_item);
 
+        // create new item
+        TodoItem new_item = todo_manager.create_item(todo_item);
+
         // refresh ListView
         todoAdapter.notifyDataSetChanged();
 
-        // clear the input line after text is added
-        user_input.getText().clear();
-
         // add item to the SQLite
         db_helper.create(new_item);
+
+        // clear the input line after text is added
+        user_input.getText().clear();
+    }
+
+    public void changeItemColor(View view, String status) {
+
+        switch(status) {
+            case ("unfinished"):
+                view.setBackgroundColor(Color.GRAY);
+                break;
+            case ("finished"):
+                view.setBackgroundColor(Color.WHITE);
+                break;
+        }
+
+
+
     }
 }
