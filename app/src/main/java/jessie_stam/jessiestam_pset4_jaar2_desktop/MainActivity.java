@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     String clicked_item;
     String current_status;
     String update_todo;
+    ArrayList<TodoItem> item_list;
+    String clicked_remove_item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         screen_list = (ListView) findViewById(R.id.todo_list_id);
 
         todo_list = new ArrayList<>();
+        item_list = new ArrayList<>();
 
         todoAdapter = new ArrayAdapter<>
                 (this, R.layout.listview_layout,R.id.listview_text, todo_list);
@@ -47,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
 
         // constructor manager class aanroepen
         todo_manager = TodoManager.getOurInstance();
+
+
 
         /*
          * Check status of todo_item, change background color accordingly
@@ -61,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 // get name from clicked item
                 clicked_item = (String) parent.getItemAtPosition(position);
 
-                Log.d("test", "item is clicked: " + clicked_item);
+//                Log.d("test", "item is clicked: " + clicked_item);
 
                 // iterate over hashmaps in database list
                 for (HashMap<String, String> hashmap : db_list) {
@@ -75,18 +80,18 @@ public class MainActivity extends AppCompatActivity {
                             update_todo = hashmap.get("todo_text");
                             current_status = hashmap.get("current_status");
 
-                            Log.d("onclick test 2", "gets in loop 2");
-                            Log.d("status", current_status);
+//                            Log.d("onclick test 2", "gets in loop 2");
+//                            Log.d("status", current_status);
                         }
                     }
                 }
 
-                Log.d("onclick test", "gets out of loop");
+//                Log.d("onclick test", "gets out of loop");
+                if (current_status != null) {
+                    changeItemColor(view, current_status);
+                }
 
-                changeItemColor(view, current_status);
-
-                TodoItem todo_item = todo_manager.create_item(update_todo);
-                db_helper.update(todo_item);
+                db_helper.update(getTodoItem(clicked_item));
             }
         });
 
@@ -97,12 +102,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View string, int position, long id) {
 
+                clicked_remove_item = (String) parent.getItemAtPosition(position);
+
                 // remove the item at the touched position and update data
                 todo_list.remove(position);
                 todoAdapter.notifyDataSetChanged();
 
+                int remove_id = getTodoItem(clicked_remove_item).getId();
+
                 //remove title from the SQLite
-                db_helper.delete((int) id);
+                db_helper.delete(remove_id);
 
                 return true;
             }
@@ -129,6 +138,9 @@ public class MainActivity extends AppCompatActivity {
         // create new item
         TodoItem new_item = todo_manager.create_item(todo_item);
 
+        // add TodoItem to list
+        item_list.add(new_item);
+
         // refresh ListView
         todoAdapter.notifyDataSetChanged();
 
@@ -150,7 +162,27 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
+    }
 
+//    public int getTodoItemId(String item_name) {
+//
+//        int id = 0;
+//
+//        for (TodoItem item : item_list) {
+//            if (item.getTitle().equals(item_name)) {
+//                int id = item.getId();
+//            }
+//        }
+//        return id;
+//    }
 
+    public TodoItem getTodoItem(String item_name) {
+
+        for (TodoItem item : item_list) {
+            if (item.getTitle().equals(item_name)) {
+                return item;
+            }
+        }
+        return null;
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,12 +24,16 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // define status
     private String current_status;
+    private String new_status;
+
+    // define dataBase
+    SQLiteDatabase dataBase;
 
     @Override
     public void onCreate(SQLiteDatabase dataBase) {
 
         // create the table, add id and to-do items
-        String query = "CREATE TABLE " + TABLE + " (_id " + "INTEGER PRIMARY KEY AUTOINCREMENT, " + "todo_text TEXT, current_status TEXT)";
+        String query = "CREATE TABLE " + TABLE + " (_id " + "todo_text TEXT, current_status TEXT)";
 
         dataBase.execSQL(query);
     }
@@ -44,10 +49,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public void create(TodoItem todo_item) {
 
         // initialize database for writing
-        SQLiteDatabase dataBase = getWritableDatabase();
+        dataBase = getWritableDatabase();
         ContentValues values = new ContentValues();
 
         // add to-do item to the list and insert into table
+        values.put("_id", todo_item.getId());
         values.put("todo_text", todo_item.getTitle());
         values.put("current_status", todo_item.getCurrentStatus());
         dataBase.insert(TABLE, null, values);
@@ -60,7 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<HashMap<String, String>> read_item() {
 
         // initialize database for reading
-        SQLiteDatabase dataBase = getReadableDatabase();
+        dataBase = getReadableDatabase();
 
         // select id and item from the table
         String query = "SELECT _id, " + "todo_text, " + "current_status " + "FROM " + TABLE;
@@ -100,22 +106,25 @@ public class DBHelper extends SQLiteOpenHelper {
 
         switch(current_status) {
             case ("unfinished"):
-                current_status = "finished";
+                new_status = "finished";
                 break;
             case ("finished"):
-                current_status = "unfinished";
+                new_status = "unfinished";
                 break;
         }
 
-        todo_item.setCurrentStatus(current_status);
+        Log.d("Test: status change: ", new_status);
+
+        todo_item.setCurrentStatus(new_status);
 
         // add to-do item to list and add to the table
-        values.put("_id", todo_item.getId());
         values.put("todo_text", todo_item.getTitle());
-        values.put("current_status", current_status);
+        values.put("current_status", new_status);
 
         // change data in the database for specific id
         dataBase.update(TABLE, values, "_id = ? ", new String[] {String.valueOf(todo_item.getId())});
+
+        Log.d("id of item to change", String.valueOf(todo_item.getId()));
         dataBase.close();
     }
 
@@ -125,10 +134,12 @@ public class DBHelper extends SQLiteOpenHelper {
     public void delete(int id) {
 
         // initialize database for writing
-        SQLiteDatabase dataBase = getWritableDatabase();
+        dataBase = getWritableDatabase();
+
+        Log.d("Test: int to delete = ", String.valueOf(id));
 
         // delete to-do item from the table
-        dataBase.delete(TABLE, " _id = ? ", new String[] {String.valueOf(id)});
+        dataBase.delete(TABLE, " _id = ?", new String[] {String.valueOf(id)});
         dataBase.close();
     }
 }
