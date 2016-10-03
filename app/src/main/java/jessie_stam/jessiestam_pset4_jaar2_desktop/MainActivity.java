@@ -67,10 +67,9 @@ public class MainActivity extends AppCompatActivity {
 
         // first time app is created, print instructions into listview
         if (todo_list.size() == 0) {
-            todo_list.add("Use the box below to add items");
-            todo_list.add("Tap the items in the list to check them off");
-            todo_list.add("Long-click items to remove them from the list");
-            todoAdapter.notifyDataSetChanged();
+            todoAdapter.add("Use the box below to add items");
+            todoAdapter.add("Tap the items in the list to check them off");
+            todoAdapter.add("Long-click items to remove them");
         }
 
         /**
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                // change the backgroundcolor of clicked item
+                // change the background color of clicked item
                 if (current_status != null) {
                     changeItemColor(view, current_status);
                 }
