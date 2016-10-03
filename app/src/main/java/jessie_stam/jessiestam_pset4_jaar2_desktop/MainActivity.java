@@ -25,12 +25,13 @@ public class MainActivity extends AppCompatActivity {
     TodoManager todo_manager;
     DBHelper db_helper;
     ArrayList<HashMap<String, String>> db_list;
-    String clicked_item;
+    int clicked_item;
+    String clicked_item_string;
     String current_status;
     String update_todo;
     ArrayList<TodoItem> item_list;
     String clicked_remove_item;
-    ArrayList<String> clicked_item_list;
+    ArrayList<Integer> clicked_item_list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,21 +67,19 @@ public class MainActivity extends AppCompatActivity {
                 // read SQLite database to get status of clicked item
                 db_list = db_helper.read_item();
 
-                // get name from clicked item
-                clicked_item = (String) parent.getItemAtPosition(position);
-
                 // clicked item list contains all finished items
                 if (clicked_item_list != null) {
                     Log.d("test", "we itereate over clicked items");
-                    for (String item : clicked_item_list) {
-                        if (item.equals(clicked_item)) {
+                    for (int pos : clicked_item_list) {
+
+                        if (pos == id) {
                             Log.d("test", "item equals clicked item");
-                            clicked_item_list.remove(item);
+                            clicked_item_list.remove(pos);
                             break;
                         }
                     }
                     Log.d("test", "it is still in the loop");
-                    clicked_item_list.add(clicked_item);
+                    clicked_item_list.add((int) id);
                 }
 
                 // iterate over hashmaps in database list
@@ -94,14 +93,10 @@ public class MainActivity extends AppCompatActivity {
                         if (hashmap_entry.toString().equals("todo_text=" + clicked_item)) {
                             update_todo = hashmap.get("todo_text");
                             current_status = hashmap.get("current_status");
-
-//                            Log.d("onclick test 2", "gets in loop 2");
-//                            Log.d("status", current_status);
                         }
                     }
                 }
 
-//                Log.d("onclick test", "gets out of loop");
                 if (current_status != null) {
                     changeItemColor(view, current_status);
                 }
