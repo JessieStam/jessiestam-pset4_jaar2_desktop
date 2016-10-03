@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="jessie_stam.jessiestam_pset4_jaar2_desktop.MainActivity"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:weightSum="1">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#2d4b43"
+            android:padding="5dp">
+
+            <TextView
+                android:text="ToDo List"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView"
+                android:layout_gravity="center"
+                android:textSize="28sp"
+                android:textColor="#FFFFFF"/>
+
+        </FrameLayout>
+
+        <TextView
+            android:text="Long-press to delete an item."
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView2"
+            android:textColor="#1b3c31"
+            android:layout_gravity="center"
+            android:padding="2dp"
+            android:textSize="17sp"
+            android:layout_weight="0"/>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_weight="1"
+            android:id="@+id/todo_list_id" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:padding="2dp">
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:hint="@string/add_hint"
+                android:textSize="15sp"
+                android:id="@+id/user_todo_input"
+                android:layout_weight="1"
+                android:background="#56856f"
+                android:layout_gravity="start"
+                android:padding="15dp"/>
+
+            <Button
+                android:text="@string/add_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/add_button"
+                android:textSize="15sp"
+                android:layout_weight="0.1"
+                android:layout_gravity="end"
+                android:background="#0e2b23"
+                android:onClick="addToListItem"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</RelativeLayout>

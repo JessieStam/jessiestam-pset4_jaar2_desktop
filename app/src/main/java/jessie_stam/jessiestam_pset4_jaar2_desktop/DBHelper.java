@@ -19,6 +19,11 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "firstdb.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE = "todo_table";
+
+    private static final String KEY_ID = "_id";
+    private static final String KEY_TODO = "todo_text";
+    private static final String KEY_STATUS = "current_status";
+
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION); }
 
@@ -27,13 +32,15 @@ public class DBHelper extends SQLiteOpenHelper {
     private String new_status;
 
     // define dataBase
-    SQLiteDatabase dataBase;
+    //SQLiteDatabase dataBase;
 
     @Override
     public void onCreate(SQLiteDatabase dataBase) {
 
         // create the table, add id and to-do items
-        String query = "CREATE TABLE " + TABLE + " (_id " + "todo_text TEXT, current_status TEXT)";
+        String query = "CREATE TABLE " + TABLE + "(_id " + "INTEGER PRIMARY KEY, " + "todo_text TEXT, " + "current_status TEXT);";
+
+        Log.d("test", "we get into oncreate");
 
         dataBase.execSQL(query);
     }
@@ -48,8 +55,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void create(TodoItem todo_item) {
 
+        Log.d("test", "we get in create");
+
         // initialize database for writing
-        dataBase = getWritableDatabase();
+        SQLiteDatabase dataBase = getWritableDatabase();
         ContentValues values = new ContentValues();
 
         // add to-do item to the list and insert into table
@@ -66,7 +75,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<HashMap<String, String>> read_item() {
 
         // initialize database for reading
-        dataBase = getReadableDatabase();
+        SQLiteDatabase dataBase = getReadableDatabase();
 
         // select id and item from the table
         String query = "SELECT _id, " + "todo_text, " + "current_status " + "FROM " + TABLE;
@@ -134,7 +143,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void delete(int id) {
 
         // initialize database for writing
-        dataBase = getWritableDatabase();
+        SQLiteDatabase dataBase = getWritableDatabase();
 
         Log.d("Test: int to delete = ", String.valueOf(id));
 

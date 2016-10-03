@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
     String todo_item;
     ArrayList<String> todo_list;
+    ArrayList<String> restore_todo_list;
     EditText user_input;
     ListView screen_list;
     ArrayAdapter<String> todoAdapter;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     String update_todo;
     ArrayList<TodoItem> item_list;
     String clicked_remove_item;
+    ArrayList<String> clicked_item_list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,17 +43,18 @@ public class MainActivity extends AppCompatActivity {
 
         todo_list = new ArrayList<>();
         item_list = new ArrayList<>();
-
-        todoAdapter = new ArrayAdapter<>
-                (this, R.layout.listview_layout,R.id.listview_text, todo_list);
+        clicked_item_list = new ArrayList<>();
 
         // nieuwe DBHelper maken
         db_helper = new DBHelper(this);
 
+        todoAdapter = new ArrayAdapter<>
+                (this, R.layout.listview_layout,R.id.listview_text, todo_list);
+
+        screen_list.setAdapter(todoAdapter);
+
         // constructor manager class aanroepen
         todo_manager = TodoManager.getOurInstance();
-
-
 
         /*
          * Check status of todo_item, change background color accordingly
@@ -66,7 +69,19 @@ public class MainActivity extends AppCompatActivity {
                 // get name from clicked item
                 clicked_item = (String) parent.getItemAtPosition(position);
 
-//                Log.d("test", "item is clicked: " + clicked_item);
+                // clicked item list contains all finished items
+                if (clicked_item_list != null) {
+                    Log.d("test", "we itereate over clicked items");
+                    for (String item : clicked_item_list) {
+                        if (item.equals(clicked_item)) {
+                            Log.d("test", "item equals clicked item");
+                            clicked_item_list.remove(item);
+                            break;
+                        }
+                    }
+                    Log.d("test", "it is still in the loop");
+                    clicked_item_list.add(clicked_item);
+                }
 
                 // iterate over hashmaps in database list
                 for (HashMap<String, String> hashmap : db_list) {
@@ -125,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     public void addToListItem(View view) {
 
         // use adapter to put todo_list information to screen_list
-        screen_list.setAdapter(todoAdapter);
+//        screen_list.setAdapter(todoAdapter);
 
         // get item for the list
         todo_item = user_input.getText().toString();
@@ -164,18 +179,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    public int getTodoItemId(String item_name) {
-//
-//        int id = 0;
-//
-//        for (TodoItem item : item_list) {
-//            if (item.getTitle().equals(item_name)) {
-//                int id = item.getId();
-//            }
-//        }
-//        return id;
-//    }
-
     public TodoItem getTodoItem(String item_name) {
 
         for (TodoItem item : item_list) {
@@ -185,4 +188,61 @@ public class MainActivity extends AppCompatActivity {
         }
         return null;
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // save list objects
+        outState.putStringArrayList("restore_todo_list", todo_list);
+        outState.putParcelableArrayList("item_list", item_list);
+        outState.putStringArrayList("clicked_item_list", clicked_item_list);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // restore list objects
+        restore_todo_list = savedInstanceState.getStringArrayList("restore_todo_list");
+        item_list = savedInstanceState.getParcelableArrayList("item_list");
+        clicked_item_list = savedInstanceState.getStringArrayList("clicked_item_list");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        item_list.clear();
+        todo_list.clear();
+
+        db_list = db_helper.read_item();
+
+        for (HashMap<String, String> hashmap : db_list) {
+            // iterate over entries in hashmap
+            String retrieved_id = hashmap.get("_id");
+            String retrieved_title = hashmap.get("todo_text");
+            String retrieved_status = hashmap.get("current_status");
+
+            TodoItem new_item = todo_manager.create_item(retrieved_title);
+            new_item.setId(Integer.parseInt(retrieved_id));
+            new_item.setCurrentStatus(retrieved_status);
+
+
+            item_list.add(new_item);
+
+            todo_list.add(retrieved_title);
+            todoAdapter.notifyDataSetChanged();
+        }
+
+    }
+
+
 }
