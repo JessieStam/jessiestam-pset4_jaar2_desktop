@@ -3,7 +3,6 @@ package jessie_stam.jessiestam_pset4_jaar2_desktop;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -14,11 +13,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * To Do List App - MainActivity
+ *
+ * Jessie Stam
+ * 10560599
+ *
+ * Lets users create a to do list. By pushing the button, a to do is added to the list. By clicking
+ * on items in the list, the item can be checked of by changing its color. By long-cliking the
+ * item it will be removed completely.
+ */
 public class MainActivity extends AppCompatActivity {
 
     String todo_item;
     ArrayList<String> todo_list;
-    ArrayList<String> restore_todo_list;
     EditText user_input;
     ListView screen_list;
     ArrayAdapter<String> todoAdapter;
@@ -37,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // define objects
         user_input = (EditText) findViewById(R.id.user_todo_input);
         screen_list = new ListView(this);
         screen_list = (ListView) findViewById(R.id.todo_list_id);
@@ -45,19 +54,27 @@ public class MainActivity extends AppCompatActivity {
         item_list = new ArrayList<>();
         clicked_item_list = new ArrayList<>();
 
-        // nieuwe DBHelper maken
+        // initialize new DBHelper object
         db_helper = new DBHelper(this);
 
+        // create new adapter and set to listview
         todoAdapter = new ArrayAdapter<>
                 (this, R.layout.listview_layout,R.id.listview_text, todo_list);
-
         screen_list.setAdapter(todoAdapter);
 
-        // constructor manager class aanroepen
+        // construct new manager
         todo_manager = TodoManager.getOurInstance();
 
-        /*
-         * Check status of todo_item, change background color accordingly
+        // first time app is created, print instructions into listview
+        if (todo_list.size() == 0) {
+            todo_list.add("Use the box below to add items");
+            todo_list.add("Tap the items in the list to check them off");
+            todo_list.add("Long-click items to remove them from the list");
+            todoAdapter.notifyDataSetChanged();
+        }
+
+        /**
+         * When item is clicked, its status is checked. Background color is changed accordingly
          */
         screen_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -65,32 +82,13 @@ public class MainActivity extends AppCompatActivity {
 
                 // read SQLite database to get status of clicked item
                 db_list = db_helper.read_item();
-
                 clicked_item = (String) parent.getItemAtPosition(position);
 
-//                // clicked item list contains all finished items
-//                if (clicked_item_list != null) {
-//                    Log.d("test", "we itereate over clicked items");
-//                    for (int pos : clicked_item_list) {
-//
-//                        if (pos == id) {
-//                            Log.d("test", "item equals clicked item");
-//                            clicked_item_list.remove(pos);
-//                            break;
-//                        }
-//                    }
-//                    Log.d("test", "it is still in the loop");
-//                    clicked_item_list.add((int) id);
-//                }
-
-                // iterate over hashmaps in database list
+                // iterate over TodoItems and its entries in database list
                 for (HashMap<String, String> hashmap : db_list) {
-                    // iterate over entries in hashmap
                     for (Map.Entry<String, String> hashmap_entry : hashmap.entrySet()) {
-                        // if clicked item name is in hashmap, save status of that hashmap
 
-                        Log.d("onclick test", hashmap_entry.toString());
-
+                        //when matching TodoItem text for clicked item is found, get status
                         if (hashmap_entry.toString().equals("todo_text=" + clicked_item)) {
                             update_todo = hashmap.get("todo_text");
                             current_status = hashmap.get("current_status");
@@ -98,16 +96,18 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
+                // change the backgroundcolor of clicked item
                 if (current_status != null) {
                     changeItemColor(view, current_status);
                 }
 
+                // update status of clicked item in SQLite database
                 db_helper.update(getTodoItem(clicked_item));
             }
         });
 
         /**
-         * set long click listener for removing items
+         * On long-click, remove item from list and SQLite database
          */
         screen_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -119,9 +119,8 @@ public class MainActivity extends AppCompatActivity {
                 todo_list.remove(position);
                 todoAdapter.notifyDataSetChanged();
 
-                int remove_id = getTodoItem(clicked_remove_item).getId();
-
                 //remove title from the SQLite
+                int remove_id = getTodoItem(clicked_remove_item).getId();
                 db_helper.delete(remove_id);
 
                 return true;
@@ -131,29 +130,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*
-    * Adds an item to the list
+    * When button is clicked, add item to the listview
     */
     public void addToListItem(View view) {
 
-        // use adapter to put todo_list information to screen_list
-//        screen_list.setAdapter(todoAdapter);
-
-        // get item for the list
+        // get item for the list and add to listview
         todo_item = user_input.getText().toString();
-
-        Log.d("test", todo_item);
-
-        // add user input to ListView
         todo_list.add(todo_item);
-
-        // create new item
-        TodoItem new_item = todo_manager.create_item(todo_item);
-
-        // add TodoItem to list
-        item_list.add(new_item);
-
-        // refresh ListView
         todoAdapter.notifyDataSetChanged();
+
+        // create new TodoItem object and add to list
+        TodoItem new_item = todo_manager.create_item(todo_item);
+        item_list.add(new_item);
 
         // add item to the SQLite
         db_helper.create(new_item);
@@ -162,6 +150,9 @@ public class MainActivity extends AppCompatActivity {
         user_input.getText().clear();
     }
 
+    /**
+     * Changes the color of listview items
+     */
     public void changeItemColor(View view, String status) {
 
         switch(status) {
@@ -172,9 +163,11 @@ public class MainActivity extends AppCompatActivity {
                 view.setBackgroundColor(Color.WHITE);
                 break;
         }
-
     }
 
+    /**
+     * Gets the matching TodoItem from the list for title String
+     */
     public TodoItem getTodoItem(String item_name) {
 
         for (TodoItem item : item_list) {
@@ -185,12 +178,9 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//
-//    }
-
+    /**
+     * When app is resumed, read SQLite table and put its contents back into the listview
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -198,27 +188,26 @@ public class MainActivity extends AppCompatActivity {
         item_list.clear();
         todo_list.clear();
 
+        // read SQLite database
         db_list = db_helper.read_item();
 
+        // iterate over TodoItems in databases
         for (HashMap<String, String> hashmap : db_list) {
-            // iterate over entries in hashmap
+
+            //ave id, title and status
             String retrieved_id = hashmap.get("_id");
             String retrieved_title = hashmap.get("todo_text");
             String retrieved_status = hashmap.get("current_status");
 
+            // recreate TodoItem and put in list
             TodoItem new_item = todo_manager.create_item(retrieved_title);
             new_item.setId(Integer.parseInt(retrieved_id));
             new_item.setCurrentStatus(retrieved_status);
 
-
+            // put items back into the listview
             item_list.add(new_item);
-
             todo_list.add(retrieved_title);
-
             todoAdapter.notifyDataSetChanged();
         }
-
     }
-
-
 }
