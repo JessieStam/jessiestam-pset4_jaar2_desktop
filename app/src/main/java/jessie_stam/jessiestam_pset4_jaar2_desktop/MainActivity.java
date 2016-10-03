@@ -25,8 +25,7 @@ public class MainActivity extends AppCompatActivity {
     TodoManager todo_manager;
     DBHelper db_helper;
     ArrayList<HashMap<String, String>> db_list;
-    int clicked_item;
-    String clicked_item_string;
+    String clicked_item;
     String current_status;
     String update_todo;
     ArrayList<TodoItem> item_list;
@@ -67,20 +66,22 @@ public class MainActivity extends AppCompatActivity {
                 // read SQLite database to get status of clicked item
                 db_list = db_helper.read_item();
 
-                // clicked item list contains all finished items
-                if (clicked_item_list != null) {
-                    Log.d("test", "we itereate over clicked items");
-                    for (int pos : clicked_item_list) {
+                clicked_item = (String) parent.getItemAtPosition(position);
 
-                        if (pos == id) {
-                            Log.d("test", "item equals clicked item");
-                            clicked_item_list.remove(pos);
-                            break;
-                        }
-                    }
-                    Log.d("test", "it is still in the loop");
-                    clicked_item_list.add((int) id);
-                }
+//                // clicked item list contains all finished items
+//                if (clicked_item_list != null) {
+//                    Log.d("test", "we itereate over clicked items");
+//                    for (int pos : clicked_item_list) {
+//
+//                        if (pos == id) {
+//                            Log.d("test", "item equals clicked item");
+//                            clicked_item_list.remove(pos);
+//                            break;
+//                        }
+//                    }
+//                    Log.d("test", "it is still in the loop");
+//                    clicked_item_list.add((int) id);
+//                }
 
                 // iterate over hashmaps in database list
                 for (HashMap<String, String> hashmap : db_list) {
@@ -184,32 +185,11 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        // save list objects
-        outState.putStringArrayList("restore_todo_list", todo_list);
-        outState.putParcelableArrayList("item_list", item_list);
-        outState.putStringArrayList("clicked_item_list", clicked_item_list);
-
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-        // restore list objects
-        restore_todo_list = savedInstanceState.getStringArrayList("restore_todo_list");
-        item_list = savedInstanceState.getParcelableArrayList("item_list");
-        clicked_item_list = savedInstanceState.getStringArrayList("clicked_item_list");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-    }
+//    @Override
+//    public void onPause() {
+//        super.onPause();
+//
+//    }
 
     @Override
     protected void onResume() {
@@ -234,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
             item_list.add(new_item);
 
             todo_list.add(retrieved_title);
+
             todoAdapter.notifyDataSetChanged();
         }
 
